@@ -1,16 +1,21 @@
 //import user schema from the model package
 import { user } from "../models/user.js";
+import { v4 as uuidv4 } from "uuid";
+import { setUser } from "../services/auth.js";
+import { hashPassword, comparePassword } from "../utils/password.js";
 
 const registerUser = async(req, res) =>{
     console.log("Testing registration...");
     try
     {
         const { firstName, lastName, email, password} = req.body;
+        //encrypting the password through hashing
+        const hashedPassword = await hashPassword(password);
         const newUser = await user.create({
             firstName,
             lastName,
             email,
-            password,
+            password: hashedPassword,
         });
         return res.status(201).json
         (
@@ -32,7 +37,7 @@ const loginUser = async(req,res) =>{
         const {email, password} = req.body;
         const storedUser = await user.findOne
         (
-            {email, password}
+            {email}
         );
 
         //checking whether the user exists or not
@@ -43,6 +48,20 @@ const loginUser = async(req,res) =>{
             );
         }
 
+        //to do bcrypt.compare(plaintext, hash password)
+        const isPasswordValid = await comparePassword(password, storedUser.password);
+
+        if(!isPasswordValid){
+            return res.status(401).json
+            (
+                { message: "Invalid password" }
+            );
+        }
+
+        const sessionId = uuidv4();
+        setUser(sessionId, storedUser);
+        res.cookie("uid", sessionId);
+        console.log(sessionId);
         return res.status(200).json
         (
             { message: "Login successful", user: storedUser }
