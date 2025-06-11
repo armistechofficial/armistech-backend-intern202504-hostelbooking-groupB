@@ -1,16 +1,17 @@
 import {Router} from "express";
+import { restrictTo } from "../middlewares/auth.js";
 
 const protectedRouter = Router();
 
 //listing routes for all the protected pages
-protectedRouter.get("/booking", (req, res) => {
+protectedRouter.get("/booking", restrictTo(["customer"]), (req, res) => {
   res.status(200).json
   (
     { message: "Booking data for logged-in user only" }
   );
 });
 
-protectedRouter.post("/booking", (req, res) => {
+protectedRouter.post("/booking", restrictTo(["customer"]), (req, res) => {
   res.status(201).json
   (
     { message: "Booking created"}

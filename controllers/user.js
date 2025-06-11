@@ -58,13 +58,12 @@ const loginUser = async(req,res) =>{
             );
         }
 
-        const sessionId = uuidv4();
-        setUser(sessionId, storedUser);
-        res.cookie("uid", sessionId);
-        console.log(sessionId);
+        const token = setUser(storedUser);
+        //res.cookie("uid", token);
+        console.log(token);
         return res.status(200).json
         (
-            { message: "Login successful", user: storedUser }
+            { message: "Login successful", token: token, }
         );
     }
     catch(error){
