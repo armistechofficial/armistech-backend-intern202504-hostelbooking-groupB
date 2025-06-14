@@ -7,14 +7,14 @@ const protectedRouter = Router();
 protectedRouter.get("/booking", restrictTo(["customer"]), (req, res) => {
   res.status(200).json
   (
-    { message: "Booking data for logged-in user only" }
+    { message: "Booking data for logged-in customer only" }
   );
 });
 
 protectedRouter.post("/booking", restrictTo(["customer"]), (req, res) => {
   res.status(201).json
   (
-    { message: "Booking created"}
+    { message: "Booking successfully created"}
   );
 });
 

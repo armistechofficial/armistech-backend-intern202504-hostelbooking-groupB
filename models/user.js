@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 
+const nameRegex = /^[A-Za-z\s\-]+$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const userSchema = new mongoose.Schema(
     {
         firstName: {
@@ -8,6 +11,7 @@ const userSchema = new mongoose.Schema(
             trim: true,
             minLength: 4,
             maxLength: 50,
+            match: [nameRegex, "First name must be only alphabetic"],
         },
         lastName: {
             type: String,
@@ -15,6 +19,7 @@ const userSchema = new mongoose.Schema(
             trim: true,
             minLength: 2,
             maxLength: 50,
+            match: [nameRegex, "Last name must be only alphabetic"],
         },
         email: {
             type: String,
@@ -22,6 +27,7 @@ const userSchema = new mongoose.Schema(
             unique: true, 
             minLength: 8,
             maxLength: 100,
+            match: [emailRegex, "Email must be valid"],
         },
         password: {
             type: String,

@@ -9,6 +9,14 @@ const registerUser = async(req, res) =>{
     try
     {
         const { firstName, lastName, email, password} = req.body;
+
+        const existingUser = await user.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json(
+                { message: "User with email already registered" }
+            );
+        }
+
         //encrypting the password through hashing
         const hashedPassword = await hashPassword(password);
         const newUser = await user.create({
