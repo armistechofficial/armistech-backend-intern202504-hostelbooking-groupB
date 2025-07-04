@@ -1,5 +1,6 @@
 import {Router} from "express";
 import { restrictTo } from "../middlewares/auth.js";
+import { createBooking } from "../controllers/booking.js";
 
 const protectedRouter = Router();
 
@@ -11,12 +12,7 @@ protectedRouter.get("/booking", restrictTo(["customer"]), (req, res) => {
   );
 });
 
-protectedRouter.post("/booking", restrictTo(["customer"]), (req, res) => {
-  res.status(201).json
-  (
-    { message: "Booking successfully created"}
-  );
-});
+protectedRouter.post("/booking/personal-details", restrictTo(["customer"]), createBooking);
 
 export {protectedRouter};
 
