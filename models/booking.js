@@ -1,10 +1,17 @@
 import mongoose from "mongoose";
+import { paymentSchema } from "./payment.js";
 
 const nameRegex = /^[A-Za-z\s\-]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\d{10}$/;
 
 const bookingSchema = new mongoose.Schema(
     {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "user", 
+            required: true,
+        },
         personalDetails: {
             nationalId:{
                 type: String,
@@ -59,15 +66,11 @@ const bookingSchema = new mongoose.Schema(
             contactNumber:{
                 type: String,
                 required: [true, "Phone number is required"],
-                unique: true, 
-                minLength: [10,"The number must be 10 digits long"],
-                maxLength: [10,"The number must be 10 digits long"],
-
+                match: [phoneRegex, "Phone number must be exactly 10 digits"],
             },
             email: {
                 type: String,
                 required: [true, "Email is required"],
-                unique: true, 
                 minLength: 8,
                 maxLength: 100,
                 match: [emailRegex, "Email must be valid"],
@@ -77,9 +80,22 @@ const bookingSchema = new mongoose.Schema(
             type: String,
             default: "in-progress", 
         },
-        payment: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "payment", 
+        paymentDetails: paymentSchema,
+        taxDetails: {
+            vat: {
+                type: Number,
+                default: 0,
+                min: 0
+            },
+            marketingCharge: {
+                type: Number,
+                default: 0,
+                min: 0
+            }
+        },
+        totalAmount: {
+            type: Number,
+            min: 0
         },
     }, 
     {timestamps: true}

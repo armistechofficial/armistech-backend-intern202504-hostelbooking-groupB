@@ -13,6 +13,8 @@ protectedRouter.get("/booking", restrictTo(["customer"]), (req, res) => {
 });
 
 protectedRouter.post("/booking/personal-details", restrictTo(["customer"]), createBooking);
+protectedRouter.post("/booking/payment-details", restrictTo(["customer"]), createBooking);
+protectedRouter.post("/booking/tax-details", restrictTo(["customer"]), createBooking);
 
 export {protectedRouter};
 

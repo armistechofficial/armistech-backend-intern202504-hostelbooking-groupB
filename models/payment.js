@@ -1,24 +1,35 @@
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema({
-    method: {
+    method:{
         type: String,
-        enum: ["Card", "Esewa", "Khalti", "Cash"],
+        required: true,
+        enum:["Credit card", "Esewa", "Khalti"],
+    },
+    cardholderName: {
+        type: String,
         required: true,
     },
-    status: {
+    cardNumber: {
         type: String,
-        enum: ["Pending", "Paid", "Failed"],
-        default: "Pending",
+        required: true,
     },
-    paidAt: {
+    date: {
         type: Date,
         default: Date.now,
     },
+    cvv:{
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 4,
+    },
+    balanceAmount:{
+        type: Number,
+        required: false,
+    }
 },
 { timestamps: true }
 );
 
-const payment = mongoose.model("payment", paymentSchema);
-
-export {payment};
+export {paymentSchema};
