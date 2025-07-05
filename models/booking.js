@@ -85,17 +85,52 @@ const bookingSchema = new mongoose.Schema(
             vat: {
                 type: Number,
                 default: 0,
-                min: 0
+                min: 0,
             },
             marketingCharge: {
                 type: Number,
                 default: 0,
-                min: 0
-            }
+                min: 0,
+            },
+            taxes: {
+                type: Number,
+                default: 0,
+                min: 0,
+            },
+        },
+        receipt: {
+            orderNumber: { 
+            type: String, 
+            minlength: [1, 'Order number cannot be empty']
+        },
+            address: { 
+                type: String, 
+                default: "Kathmandu, Nepal",
+            },
+            dateAndTime: { 
+                type: Date, 
+                default: Date.now 
+            },
+            hostel: { 
+                type: String, 
+                trim: true,
+                minlength: [1, 'Hostel name cannot be empty']
+            },
+            numberOfGuests: { 
+                type: Number, 
+                min: [1, 'Number of guests must be at least 1'],
+                max: [100, 'Number of guests cannot exceed 100'],
+            },
+            checkInDate: { 
+                type: Date, 
+            },
+            checkOutDate: { 
+                type: Date, 
+            },
         },
         totalAmount: {
             type: Number,
-            min: 0
+            min: 0,
         },
     }, 
     {timestamps: true}
