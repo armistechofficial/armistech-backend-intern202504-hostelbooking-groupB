@@ -140,7 +140,6 @@ const createBooking = async(req, res) =>{
 
             const baseAmount = bookingData.paymentDetails?.baseAmount || 13000;
             const vatAmount = bookingData.taxDetails?.vat || 0;
-            const marketingCharge = bookingData.taxDetails?.marketingCharge || 0;
             const taxes = bookingData.taxDetails?.taxes || 0;
             const totalAmount = baseAmount + vatAmount + taxes;
 
@@ -157,7 +156,7 @@ const createBooking = async(req, res) =>{
                         checkOutDate,
                     },
                     status: "completed",
-                    totalAmount: (bookingData.taxDetails?.totalAmount || 0) + (bookingData.taxDetails?.taxes || 0),
+                    totalAmount: totalAmount,
                 },
                 { new: true, runValidators: true }
             );
