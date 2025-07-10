@@ -5,8 +5,9 @@ require("dotenv").config(); // Load environment variables
 const emailRoutes = require("./routes/emailRoutes");
 
 const app = express();
+// Enable CORS (Cross-Origin Resource Sharing)
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Middleware to parse JSON request bodies
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
