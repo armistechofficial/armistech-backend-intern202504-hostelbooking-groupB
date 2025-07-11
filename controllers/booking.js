@@ -1,5 +1,6 @@
 import { booking } from "../models/booking.js";
 
+//includes the step-by-step creation logic of booking: personal details, payment details, tax details, bill summary
 const createBooking = async(req, res) =>{
     console.log("Testing booking creation...");
 
@@ -7,15 +8,17 @@ const createBooking = async(req, res) =>{
     const route = req.route.path;
     const userId = req.user._id;
 
+    //try-catch to check the routes and assign the instance likewise 
     try
     {
-
+        //user profile information used to create a first instance which will later update into other 
         if(route === "/booking/personal-details"){
 
             const { nationalId, firstName, lastName } = personalDetails;
             const { address, city, country, postalCode } = residenceDetails;
             const {contactNumber, email} = contactDetails;
 
+            //booking instance with only personal details
             const newBooking = await booking.create({
                         user: userId,
                         personalDetails: { 
@@ -41,6 +44,7 @@ const createBooking = async(req, res) =>{
                         }
                     );
         }
+        //adds on payment details of user 
         else if(route === "/booking/payment-details"){
 
             if (!bookingId) {
@@ -53,7 +57,7 @@ const createBooking = async(req, res) =>{
                 ...paymentDetails,
                 baseAmount: baseAmount
             };
-            //updates the existing booking details with payment details by first finding with booking id
+            //updates the existing booking data with payment details to same booking object with booking id
             const updatedBooking = await booking.findOneAndUpdate(
                 { user: userId, _id: bookingId, },
                 { paymentDetails: fullPaymentDetails },
@@ -73,6 +77,7 @@ const createBooking = async(req, res) =>{
                 }
             );
         }
+        //updates the existing booking data with tax details to same booking object with booking id
         else if(route === "/booking/tax-details"){
             if (!bookingId) {
                 return res.status(400).json(
@@ -120,6 +125,7 @@ const createBooking = async(req, res) =>{
                 }
             });
         }
+        //updates the existing booking data with receipt to same booking object with booking id
         else if(route === "/booking/receipt"){
             if (!bookingId) {
                 return res.status(400).json(

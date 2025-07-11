@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 
+//regular expression rules for name, email 
 const nameRegex = /^[A-Za-z\s\-]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+//creates a user schema
 const userSchema = new mongoose.Schema(
     {
         firstName: {
@@ -42,6 +44,7 @@ const userSchema = new mongoose.Schema(
     {timestamps: true}
 );
 
+//creates a mongoose model for user based on the user schema
 const user = mongoose.model("user", userSchema);
 
 export {user};

@@ -5,8 +5,9 @@ import { protectedRouter } from "./routes/protected.js";
 import cookieParser from "cookie-parser";
 import { checkForAuthentication} from "./middlewares/auth.js";
 
-
+//instance of the express
 const app = express();
+//port number the server will listen on
 const port = 7000;
 
 //it is used as an express middleware for incoming requests to work with json

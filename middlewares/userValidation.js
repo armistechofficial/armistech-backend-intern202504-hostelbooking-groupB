@@ -1,3 +1,4 @@
+//function to validate the user details
 const validation = (schema) => async (req,res,next) =>{
     //stores the object sent in the signin form 
     const body = req.body;
@@ -13,4 +14,5 @@ const validation = (schema) => async (req,res,next) =>{
     }
 }
 
+//export the validation function
 export { validation };

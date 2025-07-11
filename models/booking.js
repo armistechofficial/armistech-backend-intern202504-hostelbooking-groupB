@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import { paymentSchema } from "./payment.js";
 
+//regular expression rules for name, email and phone number
 const nameRegex = /^[A-Za-z\s\-]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^\d{10}$/;
 
+//a schema for booking
 const bookingSchema = new mongoose.Schema(
     {
         user: {
@@ -13,7 +15,7 @@ const bookingSchema = new mongoose.Schema(
             required: true,
         },
         personalDetails: {
-            nationalId:{
+            nationalId: {
                 type: String,
                 required: [true, "National Id is required"],
                 minLength: [11,"The National Id must be 11 digits long"],
@@ -37,7 +39,7 @@ const bookingSchema = new mongoose.Schema(
             },
         },
         residenceDetails: {
-            address:{
+            address: {
                 type: String,
                 required: [true, "Address is required"],
                 minLength: 8,
@@ -136,6 +138,8 @@ const bookingSchema = new mongoose.Schema(
     {timestamps: true}
 );
 
+//creates a mongoose model based on the schema
 const booking = mongoose.model("booking", bookingSchema);
 
+//export the booking model 
 export {booking};

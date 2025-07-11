@@ -1,9 +1,9 @@
 //import user schema from the model package
 import { user } from "../models/user.js";
-import { v4 as uuidv4 } from "uuid";
 import { setUser } from "../services/auth.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
 
+//function to register the user with password encryption
 const registerUser = async(req, res) =>{
     console.log("Testing registration...");
     try
@@ -38,6 +38,7 @@ const registerUser = async(req, res) =>{
     }
 };
 
+//function to give user stateless access to the system (JWT-based)
 const loginUser = async(req,res) =>{
     console.log("Testing login...");
     try
@@ -82,4 +83,5 @@ const loginUser = async(req,res) =>{
     }
 }
 
+//export user authentication functions 
 export {registerUser, loginUser}

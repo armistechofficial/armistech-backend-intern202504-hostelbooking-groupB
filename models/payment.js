@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+//creates a schema for payment
 const paymentSchema = new mongoose.Schema({
     method:{
         type: String,
@@ -32,4 +33,5 @@ const paymentSchema = new mongoose.Schema({
 { timestamps: true }
 );
 
+//export the schema to the booking schema
 export {paymentSchema};

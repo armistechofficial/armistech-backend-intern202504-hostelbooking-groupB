@@ -6,7 +6,9 @@ const checkForAuthentication = async(req,res,next)=>{
     req.user = null;
     if(!authorizationHeaderValue || !authorizationHeaderValue.startsWith("Bearer"))
         {
-            return null;
+            return res.status(401).json({
+                message: "Access denied. Please log in first.",
+            });
         }
     const token = authorizationHeaderValue.split("Bearer ")[1];
     const user = getUser(token);
@@ -18,6 +20,7 @@ const checkForAuthentication = async(req,res,next)=>{
 //authorization for routes according to the user roles
 const restrictTo = (roles =[]) =>{
     return (req, res, next) =>{
+        //checks if the user is logged in or not
         if(!req.user){
             return res.status(403).json(
                 {
@@ -26,6 +29,7 @@ const restrictTo = (roles =[]) =>{
             );
         }
 
+        //checks if the role matches with the pre-defined roles or not
         if(!roles.includes(req.user.role)){
             return res.status(403).json(
                 {
@@ -39,4 +43,5 @@ const restrictTo = (roles =[]) =>{
 
 }
 
+//exporting the methods as a middleware
 export { checkForAuthentication, restrictTo };
