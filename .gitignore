@@ -8,3 +8,8 @@ node_modules/
 
 # Also ignore any file or folder named 'env' (without dot)
 env
+
+# Ignore your project specific folders and files
+modules/
+routes/
+package-lock.json
