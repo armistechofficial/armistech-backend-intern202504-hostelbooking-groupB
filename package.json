@@ -2,6 +2,12 @@
   "name": "armistech-backend-intern202504-hostelbooking-groupb",
   "version": "1.0.0",
   "description": "\"# armistech-backend-intern202504-hostelbooking-groupB\"",
+  "main": "index.js",
+  "scripts": {
+  "start": "node client_reviews/index.js",
+  "dev": "nodemon client_reviews/index.js",
+  "footer_email": "node footer_email/index.js"
+},
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -11,6 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/armistechofficial/armistech-backend-intern202504-hostelbooking-groupB.git"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -18,6 +25,11 @@
   },
   "homepage": "https://github.com/armistechofficial/armistech-backend-intern202504-hostelbooking-groupB#readme",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.1",
+    "zod": "^3.25.56"
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
