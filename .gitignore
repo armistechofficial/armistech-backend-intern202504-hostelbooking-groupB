@@ -7,9 +7,4 @@ node_modules/
 **/.env
 
 # Also ignore any file or folder named 'env' (without dot)
-env
-
-# Ignore your project specific folders and files
-modules/
-routes/
-package-lock.json
+env this is gitignore in the main branch
