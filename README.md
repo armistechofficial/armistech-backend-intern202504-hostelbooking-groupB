@@ -26,9 +26,9 @@ A Hostel Booking System designed to manage user authentication, role-based acces
 - sever.js - Entry point for the Express server
 
 ### Developers:-
-Erika Shrestha (Group Leader)
-Aditi Chaudhary (Group member)
-Kritika Panthi (Group member)
+- Erika Shrestha (Group Leader)
+- Aditi Chaudhary (Group member)
+- Kritika Panthi (Group member)
   
 
 
