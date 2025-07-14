@@ -21,3 +21,4 @@ const connectDB = async () =>{
 
 //export the connectDB function so it can be used in other files
 export {connectDB};
+
