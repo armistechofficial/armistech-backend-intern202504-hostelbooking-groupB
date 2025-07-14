@@ -29,7 +29,7 @@ const hostelSchema = new mongoose.Schema({
     },
     bookedDates: {
         type: [Date],
-        default: []
+        default: [Date.now]
     }
 }, {
     timestamps: true

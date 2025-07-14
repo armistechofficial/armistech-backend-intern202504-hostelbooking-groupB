@@ -44,11 +44,11 @@ app.use("/api", checkForAuthentication, protectedRouter);
 
 // Root test route
 app.get("/", (req, res) => {
-  res.send("Hi Express.js server for hostel booking!");
+    res.send("Hi Express.js server for hostel booking!");
 });
 
 // Start server and connect to DB
 app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  await connectDB();
+    console.log(`Server is running on http://localhost:${PORT}`);
+    await connectDB();
 });
