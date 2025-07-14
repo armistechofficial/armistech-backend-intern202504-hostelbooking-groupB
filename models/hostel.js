@@ -8,29 +8,29 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const hostelSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: [true,"Hostel name is required"],
         trim: true
     },
     email:{
         type: String,
-        required: true,
-        unique: true,
+        required: [true,"Hostel email is required"],
+        unique: [true,"The email is already taken"],
         trim: true,
         match: [emailRegex, "Email must be valid"],
     },
     location: {
         type: String,
-        required: true,
+        required: [true,"Hostel location is required"],
         trim: true
     },
     capacity: {
         type: Number,
-        required: true,
+        required: [true,"Please provide capacity of hostel"],
         min: 1
     },
     price: {
         type: Number,
-        required: true,
+        required: [true,"Please provide base price"],
         min: 0
     },
     rooms: [{
@@ -38,12 +38,16 @@ const hostelSchema = new mongoose.Schema({
         ref: "RoomCategory",
     }],
     facilities: {
-        type: [String], // e.g., ["WiFi", "Laundry", "Mess"]
+        type: [String], 
+        default: []
+    },
+    images: {
+        type: [String], 
         default: []
     },
     bookedDates: {
-        type: Date,
-        default: Date.now
+        type: [Date],
+        default: []
     }
 }, {
     timestamps: true
