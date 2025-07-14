@@ -6,7 +6,17 @@ import { hostel } from "../models/hostel.js";
 
 const createHostel = async (req, res) => {
     try {
-        const { name, email, location, capacity, price, rooms, facilities, bookedDates } = req.body;
+        const { name, location, capacity, price, rooms, facilities, images, bookedDates } = req.body;
+        const { email } = req.body;
+
+        // Check if email is already taken
+        const existingHostel = await hostel.findOne({ email });
+        if (existingHostel) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Email is already taken by another hostel." 
+        });
+        }
 
         const newHostel = new hostel({
             name,
@@ -16,6 +26,7 @@ const createHostel = async (req, res) => {
             price,
             rooms,
             facilities,
+            images,
             bookedDates,
         });
 
@@ -36,7 +47,7 @@ const createHostel = async (req, res) => {
 const getAllHostels = async (req, res) => {
     try {
         const hostels = await hostel.find();
-        res.status(200).json({ success: true, data: hostels });
+        res.status(200).json({ success: true, allHostels: hostels });
     } catch (error) {
         res.status(500).json({ success: false, message: "Failed to fetch hostels" });
     }
@@ -49,7 +60,7 @@ const getHostelById = async (req, res) => {
         if (!hostelData) {
             return res.status(404).json({ success: false, message: "Hostel not found" });
         }
-        res.status(200).json({ success: true, data: hostelData });
+        res.status(200).json({ success: true, Hostel: hostelData });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error retrieving hostel" });
     }
