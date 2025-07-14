@@ -1,10 +1,11 @@
 // models/hostel.js
-
+//import mongoose from mongoose dependency
 import mongoose from "mongoose";
 
-const nameRegex = /^[A-Za-z\s\-]+$/;
+//regular expression is defined
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+//a hostel schema is create with necessary attributes
 const hostelSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -53,6 +54,7 @@ const hostelSchema = new mongoose.Schema({
     timestamps: true
 });
 
+//a hostel model is created from the schema
 const hostel = mongoose.model("Hostel", hostelSchema);
 
 export { hostel };
