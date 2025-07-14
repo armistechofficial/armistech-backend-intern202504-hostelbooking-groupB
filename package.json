@@ -1,6 +1,12 @@
 {
   "name": "armistech-backend-intern202504-hostelbooking-groupb",
   "version": "1.0.0",
+  "description": "connecting ",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "start": "node server.js"
   "description": "\"# armistech-backend-intern202504-hostelbooking-groupB\"",
   "main": "server.js",
   "type": "module",
@@ -14,6 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/armistechofficial/armistech-backend-intern202504-hostelbooking-groupB.git"
   },
+  "author": "",
   "keywords": [],
   "author": "",
   "author": "ErikaShrestha",
@@ -26,6 +33,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "mongoose": "^8.16.3"
     "mongoose": "^8.16.3",
     "zod": "^4.0.5"
     "bcrypt": "^6.0.0",
