@@ -1,4 +1,5 @@
 import { booking } from "../models/booking.js";
+import { hostel } from "../models/hostel.js";
 
 //includes the step-by-step creation logic of booking: personal details, payment details, tax details, bill summary
 const createBooking = async(req, res) =>{
@@ -7,12 +8,20 @@ const createBooking = async(req, res) =>{
     const { personalDetails, residenceDetails, contactDetails, paymentDetails, taxDetails, receipt, bookingId} = req.body;
     const route = req.route.path;
     const userId = req.user._id;
+    const {hostelId} = req.body;
 
     //try-catch to check the routes and assign the instance likewise 
     try
     {
         //user profile information used to create a first instance which will later update into other 
         if(route === "/booking/personal-details"){
+
+            const foundHostel = await hostel.findById(hostelId);
+            if (!foundHostel) {
+                return res.status(400).json(
+                    { message: "Invalid hostelId: Hostel not found." }
+                );
+            }
 
             const { nationalId, firstName, lastName } = personalDetails;
             const { address, city, country, postalCode } = residenceDetails;
@@ -21,6 +30,7 @@ const createBooking = async(req, res) =>{
             //booking instance with only personal details
             const newBooking = await booking.create({
                         user: userId,
+                        hostel: hostelId,
                         personalDetails: { 
                             nationalId, 
                             firstName, 
@@ -85,7 +95,7 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const bookingData = await booking.findOne({ user: userId, _id: bookingId });
+            const bookingData = await booking.findOne({ user: userId, _id: bookingId }).populate("hostel");
 
             if(!bookingData){
                 return res.status(404).json(
@@ -93,7 +103,7 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const baseAmount = bookingData.paymentDetails?.baseAmount || 13000;
+            const baseAmount = bookingData.hostel?.price || 13000;
             const vatRate = 0.13; // 13% VAT
             const vatAmount = baseAmount * vatRate;
             const marketingCharge = taxDetails?.marketingCharge || 100;
@@ -133,7 +143,7 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const bookingData = await booking.findOne({ user: userId, _id: bookingId });
+            const bookingData = await booking.findOne({ user: userId, _id: bookingId }).populate("hostel");
 
             if(!bookingData){
                 return res.status(404).json(
@@ -141,10 +151,11 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const { orderNumber, hostel, numberOfGuests, checkInDate, checkOutDate } = receipt;
+            const { orderNumber, numberOfGuests, checkInDate, checkOutDate } = receipt;
+            const hostel = bookingData.hostel;
             const address = bookingData.residenceDetails?.address || "Kathmandu, Nepal";
 
-            const baseAmount = bookingData.paymentDetails?.baseAmount || 13000;
+            const baseAmount = bookingData.hostel?.price || 13000;
             const vatAmount = bookingData.taxDetails?.vat || 0;
             const taxes = bookingData.taxDetails?.taxes || 0;
             const totalAmount = baseAmount + vatAmount + taxes;
@@ -156,7 +167,12 @@ const createBooking = async(req, res) =>{
                     receipt:{
                         orderNumber,
                         address,
-                        hostel,
+                        hostel:{
+                            name: hostel?.name,
+                            location: hostel?.location,
+                            price: hostel?.price,
+                            facilities: hostel?.facilities
+                        },
                         numberOfGuests,
                         checkInDate,
                         checkOutDate,
@@ -173,9 +189,14 @@ const createBooking = async(req, res) =>{
                     bookingId: updatedBooking._id,
                     receipt: {
                         orderNumber: orderNumber,
-                        address: address,
+                        address: hostel?.location,
                         dateAndTime: bookingData.receipt?.dateAndTime,
-                        hostel: hostel,
+                        hostel: {
+                            name: hostel?.name,
+                            location: hostel?.location,
+                            price: hostel?.price,
+                            facilities: hostel?.facilities
+                        },
                         numberOfGuests: numberOfGuests,
                         checkInDate: checkInDate,
                         checkOutDate: checkOutDate,
@@ -204,7 +225,7 @@ const getBookings = async (req, res) => {
         //excludes the __v metadata for the clean structure
         const bookings = await booking.find(
             { user: userId, _id: req.query.bookingId }
-        ).select('-__v');
+        ).select('-__v').populate("hostel");
 
         if (!bookings.length) {
             return res.status(404).json(

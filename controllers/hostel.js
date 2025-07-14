@@ -6,15 +6,17 @@ import { hostel } from "../models/hostel.js";
 
 const createHostel = async (req, res) => {
     try {
-        const { name, location, capacity, price, facilities, bookedDates } = req.body;
+        const { name, email, location, capacity, price, rooms, facilities, bookedDates } = req.body;
 
         const newHostel = new hostel({
             name,
+            email,
             location,
             capacity,
             price,
+            rooms,
             facilities,
-            bookedDates
+            bookedDates,
         });
 
         await newHostel.save();

@@ -34,4 +34,4 @@ const roomCategorySchema = new mongoose.Schema(
 );
 
 const RoomCategory = mongoose.model("RoomCategory", roomCategorySchema);
-export default roomCategorySchema;
+export default RoomCategory;

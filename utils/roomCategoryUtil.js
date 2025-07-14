@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const roomCategorySchema = z.object({
+const roomCategoryValidationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   features: z.array(z.string()).optional(),
   description: z.string().optional(),
@@ -9,4 +9,4 @@ const roomCategorySchema = z.object({
   images: z.array(z.string().url()).optional(),
 });
 
-export { roomCategorySchema };
+export { roomCategoryValidationSchema };
