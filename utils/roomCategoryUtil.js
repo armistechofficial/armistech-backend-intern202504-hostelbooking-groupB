@@ -1,5 +1,7 @@
+//importing zod dependency 
 import { z } from "zod";
 
+//a room schema to connect in hostels
 const roomCategoryValidationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   features: z.array(z.string()).optional(),

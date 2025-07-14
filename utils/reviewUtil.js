@@ -1,6 +1,7 @@
+//importing zod dependency
 import { z } from 'zod';
 
-// Define validation schema for user reviews
+//validation schema for user reviews
 const reviewSchema = z.object({
   name: z.string().min(1, "Name is required"), // Reviewer's name required and must not be empty
   comment: z.string().min(1, "Comment is required"), // Comment field required and must not be empty
