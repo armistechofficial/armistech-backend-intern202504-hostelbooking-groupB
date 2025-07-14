@@ -1,10 +1,11 @@
 import RoomCategory from '../models/roomCategory.js';
-import { roomCategorySchema } from '../utils/roomCategoryUtil.js';
+import { roomCategoryValidationSchema } from '../utils/roomCategoryUtil.js';
+
 
 // Create
 export const createRoomCategory = async (req, res) => {
   try {
-    const validatedData = roomCategorySchema.parse(req.body);
+    const validatedData = roomCategoryValidationSchema.parse(req.body);
     const newCategory = await RoomCategory.create(validatedData);
     res.status(201).json(newCategory);
   } catch (error) {
@@ -36,7 +37,7 @@ export const getRoomCategoryById = async (req, res) => {
 // Update
 export const updateRoomCategory = async (req, res) => {
   try {
-    const validatedData = roomCategorySchema.parse(req.body);
+    const validatedData = roomCategoryValidationSchema.parse(req.body);
     const updatedCategory = await RoomCategory.findByIdAndUpdate(req.params.id, validatedData, {
       new: true,
     });

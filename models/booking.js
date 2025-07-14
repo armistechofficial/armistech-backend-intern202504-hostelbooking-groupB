@@ -118,10 +118,11 @@ const bookingSchema = new mongoose.Schema(
                 type: Date, 
                 default: Date.now 
             },
-            hostel: { 
-                type: String, 
-                trim: true,
-                minlength: [1, 'Hostel name cannot be empty']
+            hostel: {
+                name: { type: String, trim: true, minlength: [1, 'Hostel name cannot be empty'] },
+                location: { type: String, trim: true },
+                price: { type: Number, min: 0 },
+                facilities: { type: [String], default: [] }
             },
             numberOfGuests: { 
                 type: Number, 
