@@ -8,3 +8,4 @@ node_modules/
 
 # Also ignore any file or folder named 'env' (without dot)
 env
+

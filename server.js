@@ -2,35 +2,51 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
+//load environment variables
 dotenv.config();
 
-// Routes
+//necessary routes
 import emailRoutes from "./routes/emailRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import roomCategoryRoutes from "./routes/roomCategoryRoutes.js";
+import { authRouter } from "./routes/user.js";
+import { protectedRouter } from "./routes/protected.js";
+import { publicRouter } from "./routes/public.js";
 
+// Middleware
+import { checkForAuthentication } from "./middlewares/auth.js";
+
+//initialize app
 const app = express();
 
-// Middlewares
+//middleware setup
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ extended: true }));
+app.use(cookieParser());
 
-// Connect to MongoDB
+//mongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-// Use routes
+//public routes
 app.use("/api/email", emailRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/room-categories", roomCategoryRoutes);
+app.use("/user", authRouter);
+app.use("/api", publicRouter);
 
-// Debug route loading
-console.log('emailRoutes:', typeof emailRoutes);
-console.log('reviewRoutes:', typeof reviewRoutes);
-console.log('roomCategoryRoutes:', typeof roomCategoryRoutes);
+//protected routes
+app.use("/api", checkForAuthentication, protectedRouter);
 
-// Start the server
+//root test route for express
+app.get("/", (req, res) => {
+  res.send("Hi Express.js server for hostel booking!");
+});
+
+//start server
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
