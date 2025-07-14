@@ -1,38 +1,53 @@
 import express from "express";
-import {connectDB} from "./config/mongodb.js";
-import {authRouter} from "./routes/user.js";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
+//load environment variables
+dotenv.config();
+
+//necessary routes
+import emailRoutes from "./routes/emailRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import roomCategoryRoutes from "./routes/roomCategoryRoutes.js";
+import { authRouter } from "./routes/user.js";
 import { protectedRouter } from "./routes/protected.js";
 import { publicRouter } from "./routes/public.js";
-import cookieParser from "cookie-parser";
-import { checkForAuthentication} from "./middlewares/auth.js";
 
-//instance of the express
+// Middleware
+import { checkForAuthentication } from "./middlewares/auth.js";
+
+//initialize app
 const app = express();
-//port number the server will listen on
-const port = 7000;
 
-//it is used as an express middleware for incoming requests to work with json
+//middleware setup
+app.use(cors());
 app.use(express.json({ extended: true }));
 app.use(cookieParser());
-app.use("/user", authRouter);
 
-//public routes can be accessed by anyone
+//mongoDB Connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+//public routes
+app.use("/api/email", emailRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/room-categories", roomCategoryRoutes);
+app.use("/user", authRouter);
 app.use("/api", publicRouter);
 
-//ensuring the users logged in can use these routes
+//protected routes
 app.use("/api", checkForAuthentication, protectedRouter);
 
-//app.get(para1, para2, para3) where first is blank path, second and third is the function run in the path i.e. 
-//request and response
+//root test route for express
 app.get("/", (req, res) => {
-    res.send("Hi Express.js server for user");
-    //this gets executed when user visits http://localhost:7000 or http://localhost:7000/
-  })
+  res.send("Hi Express.js server for hostel booking!");
+});
 
-//listens to the port 
-app.listen(port, async () => {
-    console.log(`App listening on port ${port}`);
-    await connectDB();
-  })
-
-
+//start server
+const PORT = process.env.PORT || 7000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
