@@ -24,10 +24,6 @@ const paymentSchema = new mongoose.Schema({
         required: true,
         minlength: 3,
         maxlength: 4,
-    },
-    balanceAmount:{
-        type: Number,
-        required: false,
     }
 },
 { timestamps: true }
