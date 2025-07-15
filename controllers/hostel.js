@@ -73,7 +73,7 @@ const updateHostel = async (req, res) => {
         if (!updated) {
             return res.status(404).json({ success: false, message: "Hostel not found" });
         }
-        res.status(200).json({ success: true, data: updated });
+        res.status(200).json({ success: true, message: "Hostel updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error updating hostel" });
     }

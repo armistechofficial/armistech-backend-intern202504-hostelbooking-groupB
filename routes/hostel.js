@@ -22,7 +22,7 @@ hostelRouter.get("/", getAllHostels);
 hostelRouter.get("/:id", getHostelById);  
 
 //hostel management routes for admin use only
-hostelRouter.post("/", checkForAuthentication, restrictTo(["admin"]), createHostel);                   
+hostelRouter.post("/",createHostel);                   
 hostelRouter.put("/:id", checkForAuthentication, restrictTo(["admin"]), updateHostel);          
 hostelRouter.delete("/:id", checkForAuthentication, restrictTo(["admin"]), deleteHostel);       
 

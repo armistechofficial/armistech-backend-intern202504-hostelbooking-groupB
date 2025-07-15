@@ -1,14 +1,19 @@
+//import booking function from booking model
 import { booking } from "../models/booking.js";
+//importing hostel function from hostel model
 import { hostel } from "../models/hostel.js";
+//importing room category schema from the roomcategory model
+import RoomCategory from "../models/roomCategory.js";
 
 //includes the step-by-step creation logic of booking: personal details, payment details, tax details, bill summary
 const createBooking = async(req, res) =>{
     console.log("Testing booking creation...");
 
-    const { personalDetails, residenceDetails, contactDetails, paymentDetails, taxDetails, receipt, bookingId} = req.body;
+    const { personalDetails, residenceDetails, contactDetails, paymentDetails, taxDetails, receipt} = req.body;
     const route = req.route.path;
     const userId = req.user._id;
-    const {hostelId} = req.body;
+    const {hostelId, roomCategory} = req.body;
+    const bookingId = req.params.bookingId;
 
     //try-catch to check the routes and assign the instance likewise 
     try
@@ -16,10 +21,32 @@ const createBooking = async(req, res) =>{
         //user profile information used to create a first instance which will later update into other 
         if(route === "/booking/personal-details"){
 
+            //cehcsk if the enetered hostel id exists or not
             const foundHostel = await hostel.findById(hostelId);
             if (!foundHostel) {
                 return res.status(400).json(
                     { message: "Invalid hostelId: Hostel not found." }
+                );
+            }
+
+            //checks if the room category is available or not
+            const selectedRoomCategory = await RoomCategory.findById(roomCategory);
+            if (!selectedRoomCategory) {
+                return res.status(400).json(
+                    { message: "Room category not found." }
+                );
+            }
+
+            //checks if the entered room belongs to the hostel selected
+            const isRoomInHostel = foundHostel.rooms.some(
+            (roomId) => roomId.toString() === roomCategory.toString()
+            );
+            //displays message if the room does not belong to the hostel
+            if (!isRoomInHostel) {
+                return res.status(400).json(
+                    {
+                        message: "Selected room category does not belong to the specified hostel."
+                    }
                 );
             }
 
@@ -55,17 +82,16 @@ const createBooking = async(req, res) =>{
                     );
         }
         //adds on payment details of user 
-        else if(route === "/booking/payment-details"){
+        else if(route.endsWith("/payment-details")){
 
             if (!bookingId) {
                 return res.status(400).json(
                     { message: "Booking ID is required for payment update." }
                 );
             }
-            const baseAmount = 13000;
+            const existingBooking = await booking.findById(bookingId).populate("hostel");
             const fullPaymentDetails = {
                 ...paymentDetails,
-                baseAmount: baseAmount
             };
             //updates the existing booking data with payment details to same booking object with booking id
             const updatedBooking = await booking.findOneAndUpdate(
@@ -73,7 +99,7 @@ const createBooking = async(req, res) =>{
                 { paymentDetails: fullPaymentDetails },
                 { new: true, runValidators: true }
             );
-
+            //if the booking is not found
             if (!updatedBooking) {
                 return res.status(404).json(
                     { message: "Booking not found: Please make a booking first." }
@@ -88,7 +114,7 @@ const createBooking = async(req, res) =>{
             );
         }
         //updates the existing booking data with tax details to same booking object with booking id
-        else if(route === "/booking/tax-details"){
+        else if(route.endsWith("/tax-details")){
             if (!bookingId) {
                 return res.status(400).json(
                     { message: "Booking ID is required for payment update." }
@@ -103,22 +129,36 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const baseAmount = bookingData.hostel?.price || 13000;
+            if (!bookingData.paymentDetails) {
+                return res.status(400).json(
+                    { message: "Please complete payment details before setting tax details." }
+                );
+            }
+
+            //the request variable for the base amount
+            const { numberOfGuests } = req.body; 
+
+            //all the calculations of the tax details summary display
+            const baseAmount = bookingData.hostel?.price * numberOfGuests;
             const vatRate = 0.13; // 13% VAT
             const vatAmount = baseAmount * vatRate;
-            const marketingCharge = taxDetails?.marketingCharge || 100;
-            const taxes = taxDetails?.taxes || 0;
-            const totalAmount = baseAmount + vatAmount;
+            const marketingCharge = 100;
+            const taxes = 10;
+            const totalAmount = baseAmount + vatAmount + marketingCharge;
+
+            //prepared a different tax object to store
+            const calculatedTaxDetails = {
+                vat: vatAmount,
+                marketingCharge: marketingCharge,
+                taxes: taxes,
+                numberOfGuests: numberOfGuests
+            };
 
             //updating the booking model with the tax details
             const updatedBooking = await booking.findOneAndUpdate(
                 { user: userId, _id: bookingId, },
                 { 
-                    taxDetails:{
-                        vat: vatAmount,
-                        marketingCharge: marketingCharge,
-                        taxes: taxes,
-                    },
+                    taxDetails: calculatedTaxDetails,
                     totalAmount: totalAmount,
                 },
                 { new: true, runValidators: true }
@@ -136,7 +176,7 @@ const createBooking = async(req, res) =>{
             });
         }
         //updates the existing booking data with receipt to same booking object with booking id
-        else if(route === "/booking/receipt"){
+        else if(route.endsWith("/receipt")){
             if (!bookingId) {
                 return res.status(400).json(
                     { message: "Booking ID is required to generate receipt." }
@@ -151,14 +191,17 @@ const createBooking = async(req, res) =>{
                 );
             }
 
-            const { orderNumber, numberOfGuests, checkInDate, checkOutDate } = receipt;
+            //needed variables for the summary receipt
+            const { orderNumber, checkInDate, checkOutDate } = receipt;
+            //recalculates the variables
+            const numberOfGuests = bookingData.taxDetails?.numberOfGuests;  
             const hostel = bookingData.hostel;
             const address = bookingData.residenceDetails?.address || "Kathmandu, Nepal";
-
-            const baseAmount = bookingData.hostel?.price || 13000;
+            const marketingCharge = bookingData.taxDetails?.marketingCharge || 100;
+            const baseAmount = (hostel?.price || 13000) * numberOfGuests;
             const vatAmount = bookingData.taxDetails?.vat || 0;
             const taxes = bookingData.taxDetails?.taxes || 0;
-            const totalAmount = baseAmount + vatAmount + taxes;
+            const totalAmount = baseAmount + vatAmount + taxes + marketingCharge;
 
             //updating the booking model with the receipt details
             const updatedBooking = await booking.findOneAndUpdate(
@@ -168,12 +211,11 @@ const createBooking = async(req, res) =>{
                         orderNumber,
                         address,
                         hostel:{
-                            name: hostel?.name,
-                            location: hostel?.location,
-                            price: hostel?.price,
-                            facilities: hostel?.facilities
+                            name: bookingData.hostel?.name,
+                            location: bookingData.hostel?.location,
+                            price: bookingData.hostel?.price,
+                            facilities: bookingData.hostel?.facilities
                         },
-                        numberOfGuests,
                         checkInDate,
                         checkOutDate,
                     },
@@ -200,7 +242,7 @@ const createBooking = async(req, res) =>{
                         numberOfGuests: numberOfGuests,
                         checkInDate: checkInDate,
                         checkOutDate: checkOutDate,
-                        balanceAmount: bookingData.paymentDetails?.baseAmount || 13000,
+                        balanceAmount: baseAmount,
                         vat: bookingData.taxDetails?.vat || 0,
                         taxes: bookingData.taxDetails?.taxes || 0,
                         totalAmount: totalAmount, 
@@ -224,7 +266,7 @@ const getBookings = async (req, res) => {
         const userId = req.user._id;
         //excludes the __v metadata for the clean structure
         const bookings = await booking.find(
-            { user: userId, _id: req.query.bookingId }
+            { user: userId}
         ).select('-__v').populate("hostel");
 
         if (!bookings.length) {
@@ -234,7 +276,7 @@ const getBookings = async (req, res) => {
         }
 
         return res.status(200).json(
-            { message: "Bookings retrieved successfully", data: bookings }
+            { message: "Bookings retrieved successfully", AllBookingdata: bookings }
         );
     } catch (error) {
         return res.status(500).json(
@@ -243,6 +285,36 @@ const getBookings = async (req, res) => {
     }
 };
 
+//creates a function to display booking details of the provided id
+const getBookingById = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const bookingId = req.params.bookingId; 
+
+        //displays message if the booking id is not 
+        if (!bookingId) {
+            return res.status(400).json({ message: "Booking ID is required." });
+        }
+
+        //finds the booking data by the user and the booking id 
+        const bookingData = await booking.findOne({ user: userId, _id: bookingId })
+            .select('-__v')
+            .populate('hostel');
+
+        if (!bookingData) {
+            return res.status(404).json({ message: "Booking not found." });
+        }
+
+        return res.status(200).json({
+            message: "Booking retrieved successfully",
+            BookingData: bookingData,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Error retrieving booking", error: error.message });
+    }
+};
+
+//a function to delete the existing booking data of the user
 const deleteBooking = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -273,39 +345,69 @@ const updateBooking = async (req, res) => {
     try {
         const userId = req.user._id;
         const bookingId = req.params.bookingId;
-        const { personalDetails, residenceDetails, contactDetails, paymentDetails, taxDetails, receipt } = req.body;
+        const { personalDetails, residenceDetails, contactDetails, paymentDetails, taxDetails, receipt, hostel: updatedHostelId, roomCategory: updatedRoomCategory} = req.body;
 
         //finding the existing booking
         const existingBooking = await booking.findOne(
             { user: userId, _id: bookingId }
         );
 
+        //if booking does not exists it informs the user as not found
         if (!existingBooking) {
             return res.status(404).json(
                 { message: "Booking not found or unauthorized." }
+            )
+        }
+
+        //converts the hostel object into string 
+        const hostelIdToCheck = updatedHostelId || existingBooking.hostel.toString();
+        //checks if the hostel to be updated belongs to the id or not
+        const foundHostel = await hostel.findById(hostelIdToCheck);
+        // Check if hostel exists
+        if (!foundHostel) {
+            return res.status(400).json(
+                { message: "Invalid hostelId." }
             );
         }
 
+        // Check if updated room category belongs to the hostel
+        if (updatedRoomCategory) {
+            //checks if room category belongs to the found hostel rooms
+            const isRoomInHostel = foundHostel.rooms.some(
+                (roomId) => roomId.toString() === updatedRoomCategory
+            );
+            //displays message if the room does not belong to the hostel
+            if (!isRoomInHostel) {
+                return res.status(400).json({
+                    message: "Selected room category does not belong to the specified hostel."
+                });
+            }
+        }
         //preparing update data with recalculations
         const updateData = {};
+        //declaring variabled for the calculations
+        const guestCount = existingBooking.receipt?.numberOfGuests || 1;
+        const baseAmount = (paymentDetails?.baseAmount) || existingBooking.paymentDetails?.baseAmount || (foundHostel.price * guestCount) || 13000;
+        const vatRate = 0.13;
+        const vatAmount = baseAmount * vatRate;
+        const marketingCharge = existingBooking.taxDetails.marketingCharge || 100;
+        const taxes = existingBooking.taxDetails.taxes || 0;
+        const totalAmount = baseAmount + vatAmount + taxes + marketingCharge;
+
+        //unchanged schema data 
         if (personalDetails)updateData.personalDetails = personalDetails;
         if (residenceDetails)updateData.residenceDetails = residenceDetails;
         if (contactDetails)updateData.contactDetails = contactDetails;
         if (paymentDetails){
-            const baseAmount = paymentDetails.baseAmount || 13000;
             updateData.paymentDetails = {...paymentDetails, baseAmount};
         }
         if (taxDetails) {
-            const baseAmount = existingBooking.paymentDetails?.baseAmount || (updateData.paymentDetails?.baseAmount || 13000);
-            const vatRate = 0.13;
-            const vatAmount = baseAmount * vatRate;
             updateData.taxDetails = {
-                ...taxDetails,
                 vat: vatAmount,
-                marketingCharge: taxDetails.marketingCharge || 100,
-                taxes: taxDetails.taxes || 0,
+                marketingCharge: marketingCharge,
+                taxes: taxes
             };
-            updateData.totalAmount = baseAmount + vatAmount + (taxDetails.taxes || 0);
+            updateData.totalAmount = totalAmount;
         }
         if (receipt){
             updateData.receipt = {
@@ -313,12 +415,6 @@ const updateBooking = async (req, res) => {
                 address: receipt.address || existingBooking.residenceDetails?.address || "Kathmandu, Nepal",
             };
             updateData.status = receipt.status || existingBooking.status;
-            // Recalculate totalAmount if taxDetails is also updated
-            if (taxDetails) {
-                const baseAmount =existingBooking.paymentDetails?.baseAmount || (updateData.paymentDetails?.baseAmount || 13000);
-                const vatAmount =(baseAmount * 0.13);
-                updateData.totalAmount = baseAmount + vatAmount +(taxDetails.taxes || 0);
-            }
         }
 
         // Perform the update
@@ -338,7 +434,8 @@ const updateBooking = async (req, res) => {
     }
 };
 
-export { createBooking, getBookings, deleteBooking, updateBooking };
+//exports the CRUD functions of booking
+export { createBooking, getBookings, getBookingById, deleteBooking, updateBooking };
 
 
 

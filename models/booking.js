@@ -19,6 +19,11 @@ const bookingSchema = new mongoose.Schema(
             ref: "Hostel", 
             required: true 
         },
+        roomCategory: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "RoomCategory",
+            required: true,
+        },
         personalDetails: {
             nationalId: {
                 type: String,
@@ -104,6 +109,11 @@ const bookingSchema = new mongoose.Schema(
                 default: 0,
                 min: 0,
             },
+            numberOfGuests: { 
+                type: Number, 
+                min: [1, 'Number of guests must be at least 1'],
+                max: [100, 'Number of guests cannot exceed 100'],
+            },
         },
         receipt: {
             orderNumber: { 
@@ -123,11 +133,6 @@ const bookingSchema = new mongoose.Schema(
                 location: { type: String, trim: true },
                 price: { type: Number, min: 0 },
                 facilities: { type: [String], default: [] }
-            },
-            numberOfGuests: { 
-                type: Number, 
-                min: [1, 'Number of guests must be at least 1'],
-                max: [100, 'Number of guests cannot exceed 100'],
             },
             checkInDate: { 
                 type: Date, 

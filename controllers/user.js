@@ -8,7 +8,7 @@ const registerUser = async(req, res) =>{
     console.log("Testing registration...");
     try
     {
-        const { firstName, lastName, email, password} = req.body;
+        const { firstName, lastName, email, password, role} = req.body;
 
         const existingUser = await user.findOne({ email });
         if (existingUser) {
@@ -24,6 +24,7 @@ const registerUser = async(req, res) =>{
             lastName,
             email,
             password: hashedPassword,
+            role
         });
         return res.status(201).json
         (

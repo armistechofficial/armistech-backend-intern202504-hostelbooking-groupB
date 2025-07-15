@@ -1,12 +1,25 @@
-// models/contact.js
 import mongoose from "mongoose";
-
-//creating a contact schema for the contact model
+//a email regular expression
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//a schema for the contact us
 const contactSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-    subject: String,
-    message: String
+    name: {
+        type: String,
+        required: [true, "Name is required"]
+    },
+    email: {
+        type: String,
+        required: [true, "Email is required"],
+        match: [ emailRegex, "Invalid email format" ]
+    },
+    subject: {
+        type: String,
+        required: [true, "Subject is required"]
+    },
+    message: {
+        type: String,
+        required: [true, "Message is required"]
+    }
 }, {
     timestamps: true
 });
@@ -15,4 +28,3 @@ const contactSchema = new mongoose.Schema({
 const Contact = mongoose.model("Contact", contactSchema);
 
 export { Contact };
-
